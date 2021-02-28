@@ -1,0 +1,42 @@
+Video player with html5 was not working. I have found in this same a script which encodes the video to a correct format Streama can play.
+
+ERROR: There seems to be a problem adding the video-file to the player. This is most likely due to a codec-problem. Try converting it to a compatible HTML5 codec, remove the currently attached file and re-add it. If the codecs are fine, check the error log of the server and the base URL in the settings.
+
+https://gist.github.com/dularion/6237d651c385d2552916
+
+The second one was the reason of this post. I can play videos in a android device with google chrome, but in an IOS device such as iPhone with Safari, Chrome, or Edge it does not work.
+
+What I have done:
+
+Download the source code of the lastest release from here: https://github.com/streamaserver/streama/releases/
+
+Unzip it and go to this folder: .../streama-1.10.1/grails-app/assets/javascripts/streama/templates
+
+Edit the file streama-video-player.tpl.htm
+
+At the end of the file, search the "video" code:
+
+<video ng-if="isInitialized" id="video"
+
+Add "autoplay loop playsinline" before "<video ", like this:
+<video autoplay loop playsinline ng-if="isInitialized" id="video"
+
+Save the file, and compile it
+
+To compile (in Linux Ubuntu) I have followed this steps:
+
+I had an issue with java (I have 2 versions installed, and to use this app, I had to install the java8, but the default one was java 11, so we have to change the JAVA_HOME to compile it).
+Change the JAVA_HOME with this command: export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+go to the Streama uncompressed folder and type: ./gradlew assemble
+It will take 5-10 minutes to compile it and it will generate a new .jar file
+You can find the new .jar file in .../build/libs/ folder
+I use another port for Stremea with this comand: java -Dserver.port=7676 -jar streama-1.10.1-1.10.1.jar
+Now we have the server running, but to play the videos, we have to convert the movies to h254 codec and then encode again and with a low resolution. I have read iPhone can play up to 480p. I have tested with a lower one but you can try with other resolutions
+
+To install handbrakecli: sudo apt-get install handbrake-cli
+
+This two commands in handbrakecli (sure you can do it in one command):
+
+HandBrakeCLI -i myMovie.avi -o myMovie.mp4 --encoder x264 --vb 900 --ab 128 --optimize
+
+HandBrakeCLI -i myMovie.mp4 --width 424 --height 240 --auto-anamorphic -o myMovie.mp4
